@@ -1,5 +1,7 @@
 extends Control
 
+var last_button_pressed:Button = null
+
 func _on_ready() -> void:
 	$GridContainer.columns = 7
 	var day_list = ["一","二","三","四","五","六","日"]
@@ -34,7 +36,21 @@ func _on_ready() -> void:
 		# 为每个标签绑定点击处理程序
 		button.pressed.connect(_on_label_clicked.bind(button))
 
-func _on_label_clicked(button) -> void:
+func _on_label_clicked(button:Button) -> void:
 	# 在这里处理标签被点击的事件
 	print("button with text '", button.text, "' was clicked.")
-	$Camera2D.add_trauma(0.5)
+	button.add_theme_color_override("font_color","red")
+	button.add_theme_color_override("font_pressed_color","red")
+	button.add_theme_color_override("font_focus_color","red")
+	button.add_theme_color_override("font_hover_pressed_color","red")
+	button.add_theme_color_override("font_hover_color","red")
+	
+	if last_button_pressed:
+		last_button_pressed.remove_theme_color_override("font_color")
+		last_button_pressed.remove_theme_color_override("font_pressed_color")
+		last_button_pressed.remove_theme_color_override("font_focus_color")
+		last_button_pressed.remove_theme_color_override("font_hover_pressed_color")
+		last_button_pressed.remove_theme_color_override("font_hover_color")
+	$AudioStreamPlayer.play()
+	$Camera2D.add_trauma(0.2)
+	last_button_pressed = button

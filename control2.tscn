@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://d1c6xo7xglreg"]
+[gd_scene load_steps=4 format=3 uid="uid://d1c6xo7xglreg"]
 
 [ext_resource type="Script" path="res://control_2.gd" id="1_jaml4"]
 [ext_resource type="Script" path="res://camera_2d.gd" id="2_gc4px"]
+[ext_resource type="AudioStream" uid="uid://doa2rsp4g88t1" path="res://click.wav" id="3_q7d01"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -22,7 +23,10 @@ offset_bottom = 717.0
 columns = 7
 
 [node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(622, 377)
+position = Vector2(579, 326)
 script = ExtResource("2_gc4px")
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_q7d01")
 
 [connection signal="ready" from="." to="." method="_on_ready"]
