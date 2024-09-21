@@ -26,5 +26,12 @@ func _on_mqtt_broker_connection_failed() -> void:
 
 func _on_mqtt_received_message(topic: Variant, message: Variant) -> void:
 	print(message)
+	var temper = str_to_var(message)
+	if temper <= 50:
+		$"../Label".add_theme_color_override("font_color","green")
+	if temper > 50 and temper <= 70:
+		$"../Label".add_theme_color_override("font_color","yellow")
+	if temper >70:
+		$"../Label".add_theme_color_override("font_color","red")
 	$"../Label".text = str(message)+"℃"
 	pass # Replace with function body.

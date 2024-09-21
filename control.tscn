@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://4qg3khchlk33"]
+[gd_scene load_steps=5 format=3 uid="uid://4qg3khchlk33"]
 
 [ext_resource type="Theme" uid="uid://bv4t2yd3j2gp0" path="res://new_theme.tres" id="1_6k0mq"]
 [ext_resource type="Script" path="res://button.gd" id="1_x3dbt"]
+[ext_resource type="Script" path="res://control.gd" id="2_54uei"]
 [ext_resource type="PackedScene" uid="uid://ktm7k0co2o7l" path="res://addons/mqtt/mqtt.tscn" id="3_6am8h"]
 
 [node name="Control" type="Control"]
@@ -12,6 +13,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_6k0mq")
+script = ExtResource("2_54uei")
 
 [node name="AcceptDialog" type="AcceptDialog" parent="."]
 title = "消息窗口"
@@ -54,6 +56,7 @@ autostart = true
 
 [node name="MQTT" parent="." instance=ExtResource("3_6am8h")]
 
+[connection signal="ready" from="." to="." method="_on_ready"]
 [connection signal="pressed" from="Button" to="Button" method="_on_pressed"]
 [connection signal="timeout" from="Timer" to="Button" method="_on_timer_timeout"]
 [connection signal="broker_connected" from="MQTT" to="Button" method="_on_mqtt_broker_connected"]
