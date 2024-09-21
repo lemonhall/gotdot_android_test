@@ -1,0 +1,236 @@
+<p><img src="/static/uploads/73d573b3869153a9cd3e9f362a75ffd.png" alt="" data-href="" style=""/></p><p>需要并不难描述，我之前拿了一张svg的地图么不是，然后我把它用程序把它二值化处理成了一张位图，蛮大的</p><p>然后切分成170个地图块，最后再用翻译器把地图块的像素翻译成了矩阵形式，最后再用窗口扫描法扫描了地图矩阵，做了边缘平滑，这都好说</p><p>然而今天发现了一个问题，如果我要对这个地图上的城市做标记的话，这工程量太恐怖了</p><p>全球的著名海港城市，成千上万，难道要我纯手工标记么？那不累死我了</p><p>所以没办法，还是得靠程序化的标注，想偷懒，没想到根本不可能</p><p>那么这个程序的输入输出也很简单：</p><p>1、输入城市的坐标位置</p><p>2、做一定的坐标转换</p><p>3、在位图上做标记</p><pre><code >from PIL import Image, ImageDraw
+    Image.MAX_IMAGE_PIXELS = 933120000
+    import math
+    
+    # 地球半径（单位：米）
+    R = 6378137
+    
+    # 打开图像文件
+    image = Image.open('reconstructed_world_final.png')
+    
+    # 获取图像的宽度和高度
+    width_pixels, height_pixels = image.size
+    print("图像宽度 width_pixels:",width_pixels)
+    print("图像高度 height_pixels:",height_pixels)
+    
+    # 假设地图的经纬度范围（需要根据实际情况调整）
+    #经度
+    min_longitude = -180
+    max_longitude = 180
+    #纬度，这张位图的纬度其实还是蛮奇怪的，最下边，也就是最南边，大约只有60度
+    #最上面则是83左右，纬度的变换很神奇的，越往两极，这个纬度的变量的非线性性就越加明显了
+    min_latitude = -60
+    max_latitude = 83.051129
+    
+    # 定义偏移量（假设向左偏移 10 个单位，你可以根据实际情况调整）
+    longitude_offset = 6.8
+    
+    # 定义偏移量（假设向左偏移 10 个单位，你可以根据实际情况调整）
+    latitude_offset = -1
+    
+    def calculate_web_mercator_x(longitude, earth_radius=6378137):
+        """
+        根据给定的经度和地球半径计算 Web 墨卡托投影下的 x 坐标值。
+    
+        参数:
+        longitude (float): 要转换的经度值。
+        earth_radius (float, 可选): 地球半径，默认为 6378137（常用值）。
+    
+        返回:
+        float: 计算得到的 Web 墨卡托投影 x 坐标值。
+        """
+        adjusted_longitude = longitude + longitude_offset
+        return adjusted_longitude  * (earth_radius * math.pi / 180)
+    
+    def calculate_web_mercator_y(latitude, R=6378137):
+        """
+        根据给定的纬度和地球半径计算 Web 墨卡托投影下的 y 值。
+    
+        参数:
+        latitude (float): 要转换的纬度值。
+        R (float, 可选): 地球半径，默认为 6378137（常用值）。
+    
+        返回:
+        float: 计算得到的 y 值。
+        """
+        adjusted_latitude = latitude - latitude_offset  # 应用赤道偏移
+        temp = math.pi / 4 + adjusted_latitude * math.pi / 360
+        # 确保正切值在合理范围内
+        tan_value = math.tan(temp) if -math.pi/2 &lt; temp &lt; math.pi/2 else 1e-10
+        log_value = math.log(tan_value)
+        return log_value * R
+    
+    #                       经度     ,  纬度
+    def convert_coordinates(longitude, latitude):
+        # Web 墨卡托投影转换公式
+        #x当然肯定是经度
+        #这一步是根据 Web 墨卡托投影的经度转换公式进行计算。
+        # 将输入的经度值 longitude 转换为弧度（因为通常在数学计算中使用弧度制），
+        # 乘以地球半径 R 和圆周率与 180 的比值，得到在 Web 墨卡托投影下的横向 X 坐标的基础值
+        # （这里假设地球是一个完美的球体）。
+        x = calculate_web_mercator_x(longitude)
+    
+    
+        #y那必然也是纬度
+        #这是根据 Web 墨卡托投影的纬度转换公式进行计算。
+        # 首先将输入的纬度值 latitude 转换为弧度（乘以圆周率与 360 的比值），
+        # 然后加上 math.pi / 4，再对结果取正切值 math.tan()，
+        # 接着对正切值取自然对数 math.log()，最后乘以地球半径 R，
+        # 得到在 Web 墨卡托投影下的纵向 Y 坐标的基础值。
+        y = calculate_web_mercator_y(latitude)
+    
+        print("Web 墨卡托投影 x坐标:",x)
+        print("Web 墨卡托投影 y坐标:",y)
+        # 在 Web 墨卡托投影下：
+        # 一、关于坐标系的基本形态
+        # 它是一个二维平面直角坐标系。
+        # 水平方向的轴通常表示经度的变化，我们记为 X 轴。
+        # 垂直方向的轴通常表示纬度的变化，我们记为 Y 轴。
+        # 整个坐标系以赤道作为基准线，赤道在这个坐标系中对应 Y 轴上的一个特定值
+        # （通常在未进行任何平移或缩放的原始状态下，赤道对应的 Y 值为 0，
+        # 但具体情况可能因不同的软件实现或数据处理方式略有差异）。
+        # 本初子午线（经度为 0 的子午线）通常对应 X 轴上的一个特定位置（通常在未进行额外调整时
+        # ，本初子午线对应的 X 值为 0）。
+    
+        # 二、X 轴（经度相关）的特点
+        # 等间距分布：
+        # 在 Web 墨卡托投影的坐标系中，随着经度的均匀增加，X 值也会均匀增加，且增加的速率是相对固定的。
+        # 例如，从经度 0° 到经度 1° 在 X 轴上的距离与从经度 10° 到经度 11° 在 X 轴上的距离是相等的
+        # （在理想情况下，不考虑由于地球形状近似以及投影变形等因素带来的微小差异）。
+        # 这意味着在这个坐标系中，沿着 X 轴方向进行的距离测量和位置计算相对直观和简单，
+        # 只要知道两个点的经度差，就可以大致估算出它们在 X 轴上的相对距离。
+        # 全球范围的连续性：
+        # X 轴的取值范围理论上可以从负无穷到正无穷，但在实际应用中，通常根据所处理的地理数据范围和应用需求，
+        # 将经度范围限制在一个合理的区间内，比如常见的从 -180° 到 180°。
+        # 当经度超过 180° 或小于 -180° 时，可以通过简单的加减 360° 来进行归一化处理，使其回到对应的区间内，
+        # 这使得在处理全球范围的地理数据时具有较好的便利性和连贯性。
+    
+        # 三、Y 轴（纬度相关）的特点
+        # 非线性变化：
+        # 与 X 轴不同，Y 轴上的值随着纬度的变化并非线性增加。
+        # 随着纬度从赤道向两极移动，Y 值的变化速率逐渐加快。
+        # 这是由于 Web 墨卡托投影是一种等角投影，为了保持角度的准确性，在高纬度地区会对空间进行拉伸，
+        # 导致在 Y 轴上的单位距离所代表的实际地理距离随着纬度的增加而增大。
+        # 例如，在赤道附近，纬度变化较小的情况下，Y 值的变化也相对较小；但在接近两极的高纬度地区，
+        # 即使纬度只变化了很小的角度，Y 值也会有较大的变化。
+    
+        # 值域的限制：
+        # 由于 Web 墨卡托投影将纬度范围限制在大约 -85.051129° 到 85.051129° 之间，
+        # 所以 Y 轴上的值也相应地在这个范围内进行取值。
+        # 超出这个纬度范围的地区在 Web 墨卡托投影的标准表示中无法直接显示，
+        # 但可以通过一些特殊的处理方法或扩展的投影方式来尝试表示极地地区。
+        # 综上所述，Web 墨卡托投影下的 X 和 Y 组成的坐标系是一个用于在平面上表示地球表面地理信息的二维直角坐标系，
+        # 但具有其独特的特点和变形规律。这个坐标系在网络地图、地理信息系统等领域得到了广泛应用，但在处理高纬度地区
+        # 数据时需要注意其变形带来的影响。
+    
+        # 将投影后的坐标映射到图像像素位置
+        # 这里是将前面计算得到的 Web 墨卡托投影下的 X 坐标 x 映射到图像的像素位置。
+        # 首先计算出经度的相对位置，
+        #       即当前经度 x 减去最小经度对应的 Web 墨卡托投影值 min_longitude * (R * math.pi / 180)，
+        #       然后除以整个经度范围对应的 Web 墨卡托投影值差值 (max_longitude - min_longitude) * (R * math.pi / 180)，
+        # 得到一个 0 到 1 之间的比例值，表示当前经度在整个经度范围内的相对位置。
+        # 
+        # 最后将这个比例值乘以图像的宽度 width_pixels，得到对应的像素位置 x_pixel，
+        # 并使用 int() 函数将其转换为整数（因为像素位置通常是整数）。
+        # 调整经度范围
+        adjusted_min_longitude = min_longitude + longitude_offset
+        adjusted_max_longitude = max_longitude + longitude_offset
+        range_x = adjusted_max_longitude - adjusted_min_longitude
+        relative_factor =  (x - calculate_web_mercator_x(adjusted_min_longitude)) / calculate_web_mercator_x(range_x)
+        x_pixel = int(relative_factor * width_pixels)
+    
+    
+        # 这是一段用于将经纬度中的纬度值转换为对应图像像素中 Y 坐标（y_pixel）的代码表达式，下面逐步为你解释：
+        # 1、先看分子部分：
+        # (y - min_latitude * (R * math.pi / 180))：
+        # y是根据 Web 墨卡托投影公式 y = math.log(math.tan(math.pi / 4 + latitude * math.pi / 360)) * R 
+        # 计算得到的当前要转换的地点的纬度投影值。
+        # min_latitude * (R * math.pi / 180)是最小纬度（在这个投影的有效纬度范围内的最小值）
+        # 按照同样的投影公式的一个基础值计算。两者相减得到当前地点相对于最小纬度在投影空间中的相对位置差值。
+        #
+        # 2、再看分母部分：
+        # ((max_latitude * (R * math.pi / 180) - min_latitude * (R * math.pi / 180)) / math.log(math.tan(math.pi / 4 + max_latitude * math.pi / 360)) - math.log(math.tan(math.pi / 4 + min_latitude * math.pi / 360)))：
+        # (max_latitude * (R * math.pi / 180) - min_latitude * (R * math.pi / 180))计算的是在投影公式下最大纬度和最小纬度对应的投影值之差，这个差值代表了整个纬度范围在投影空间中的跨度。
+        # math.log(math.tan(math.pi / 4 + max_latitude * math.pi / 360)) - math.log(math.tan(math.pi / 4 + min_latitude * math.pi / 360))则是最大纬度和最小纬度分别代入正切和对数相关的投影公式计算后得到的差值。
+        # 整个分母的计算实际上是在确定整个纬度范围在投影空间中的变化率或者说单位跨度对应的实际值。
+        #
+        # 3、接着看整个除法和乘法部分：
+        # ((y - min_latitude * (R * math.pi / 180)) / ((max_latitude * (R * math.pi / 180) - min_latitude * (R * math.pi / 180)) / math.log(math.tan(math.pi / 4 + max_latitude * math.pi / 360)) - math.log(math.tan(math.pi / 4 + min_latitude * math.pi / 360))) * height_pixels)：
+        # 将前面得到的相对位置差值除以单位跨度对应的实际值，得到当前地点在整个纬度范围内的相对比例位置。
+        # 然后乘以图像的高度 height_pixels，这是将相对比例位置转换为在图像像素坐标系中的一个基于图像高度的相对位置值。
+        #
+        # 4、最后看最前面的减法部分：
+        # height_pixels - int(...)：
+        # 因为通常图像坐标系的原点在左上角，Y 轴正方向是向下的，而纬度从赤道向两极增加也是向下的方向，所以需要用图像的高度减去前面计算得到的值，从而得到最终在图像像素坐标系中正确的 Y 坐标（y_pixel）位置。并且使用 int() 将结果转换为整数，以符合像素坐标通常为整数的要求。
+        # 计算纬度范围对应的 Web 墨卡托投影值范围
+        min_y = calculate_web_mercator_y(min_latitude)
+        max_y_diff = calculate_web_mercator_y(max_latitude) - min_y
+        # 计算相对位置因子
+        relative_factor = (y - min_y) / max_y_diff if max_y_diff!= 0 else 0
+        # 转换为像素坐标并考虑图像坐标系原点位置
+        y_pixel = height_pixels - int(relative_factor * height_pixels)
+    
+        return x_pixel, y_pixel
+    
+    # 绘制本初子午线（0 经度）
+    print("绘制本初子午线（0 经度）,第一次坐标转换")
+    x_zero_longitude_pixel = convert_coordinates(0, 0)[0]
+    draw = ImageDraw.Draw(image)
+    draw.line((x_zero_longitude_pixel, 0, x_zero_longitude_pixel, height_pixels), fill=(0, 255, 0), width=2)
+    
+    # 绘制赤道线
+    # 赤道的纬度是 0
+    print("绘制赤道线（0 纬度）,第二次坐标转换")
+    equator_y_pixel = convert_coordinates(0, 0)[1]
+    draw.line((0, equator_y_pixel, width_pixels, equator_y_pixel), fill=(255, 0, 0), width=2)
+    
+    
+    def mark_location(image, city_name, longitude, latitude):
+        """
+        在图像上标注指定经纬度的位置。
+    
+        参数:
+        image: 要标注的图像对象。
+        longitude (float): 经度。
+        latitude (float): 纬度。
+        mark_radius_pixels (int): 标注圆形的半径（像素）。
+        fill_color: 填充颜色（例如 (255, 255, 0)）。
+        """
+        # 定义标注圆的半径变量
+        mark_radius_pixels = 8
+        x, y = convert_coordinates(longitude, latitude)
+        print("{}的图像像素X位置:{}".format(city_name, x))
+        print("{}的图像像素Y位置:{}".format(city_name, x))
+        draw = ImageDraw.Draw(image)
+        draw.ellipse((x - mark_radius_pixels, y - mark_radius_pixels,
+                      x + mark_radius_pixels, y + mark_radius_pixels), fill=(0, 255, 255))
+    
+    
+    
+    # 北京的经纬度（示例，实际值请根据需要修改）
+    #经度
+    beijing_longitude = 116.4074
+    #纬度
+    beijing_latitude = 39.9042
+    # 标注北京位置
+    print("标注北京位置,第三次坐标转换")
+    mark_location(image, "北京", beijing_longitude, beijing_latitude)
+    
+    # 三亚的经纬度（示例，根据实际情况调整）
+    # 经度
+    sanya_longitude = 109.5085
+    # 纬度
+    sanya_latitude = 18.2478
+    # 标注北京位置
+    print("标注三亚位置,第四次坐标转换")
+    mark_location(image, "三亚", sanya_longitude, sanya_latitude)
+    
+    # 保存标注后的图像
+    image.save('marked_image_with_beijing_web_mercator.jpg')</code></pre><p>x的变换其实相对来说比较简单</p><p>y本身因为就是非线性的，所以很诡异</p><p>这里我标注了北京和三亚，对照了实际地图，是对的，当然，作为测试数据，应该再多标记一些南美的（赤道以下）的城市的</p><p>技巧基本都在注释里了</p><p>首先要注意的就是这个：</p><pre><code >#纬度，这张位图的纬度其实还是蛮奇怪的，最下边，也就是最南边，大约只有60度
+    #最上面则是83左右，纬度的变换很神奇的，越往两极，这个纬度的变量的非线性性就越加明显了
+    min_latitude = -60
+    max_latitude = 83.051129</code></pre><p>这个没什么道理，纯纯看你的位图的地理范围，这个需要自己拿着位图到谷歌地图这些里面去找，南北的地理范围</p><p>这个很重要</p><p>经度都好说，我这个位图其实被我扩充了一些像素，但不妨碍，反正都是180也行</p><pre><code ># 定义偏移量（假设向左偏移 10 个单位，你可以根据实际情况调整）
+    longitude_offset = 6.8
+    
+    # 定义偏移量（假设向左偏移 10 个单位，你可以根据实际情况调整）
+    latitude_offset = -1</code></pre><p>这里加了两个偏移量，用格林威治以及赤道几内亚那边作为地理线上的参考来校准本初子午线位置以及赤道位置</p><p>最后用现实的北京和三亚作为测试后的效果如图</p><p><img src="/static/uploads/08f4a040a0f5b5e63092ddd3016f3fa.png" alt="" data-href="" style=""/></p>

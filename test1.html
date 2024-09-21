@@ -1,0 +1,131 @@
+<p><br></p><pre><code >/*:
+    * @target MZ
+    * @plugindesc Show Main Actor In Map for RPG MAKER MZ
+    * @author lemonhall
+    *
+    * @command showMainActorInMap
+    * @text Show Main Actor In Map
+    * @desc Displays the Actor Image In Map
+    *
+    * @arg url
+    * @type string
+    * @text URL
+    * @desc URL to be loaded in the web viewer.
+    * @default https://www.example.com
+    *
+    *
+    * @help
+    * Displays the Actor Image In Map, use the plugin command "Show Main Actor In Map" in events.
+    */
+   
+   (() =&gt; {
+       //这个pluginName必须和文件名是同名的哈
+       const pluginName = "ShowMainActorInMap";
+       const parameters = PluginManager.parameters(pluginName);
+   
+       //这个是插件里的命令名，可以有多个的
+       PluginManager.registerCommand(pluginName, "showMainActorInMap", args =&gt; {
+               //console.log("插件：showMainActorInMap开始运行");
+               // Show Picture
+               // Game_Interpreter.prototype.command231 = function(params) {
+               //     const point = this.picturePoint(params);
+               //     // prettier-ignore
+                      //[1, "Actor1_8", 0, 0, 0, 100, 100, 255, 0]
+                      //实际调用的时候给的参数是这些：
+                      //params[0] = 1
+                      //params[1] = Actor1_8
+                      //params[2] = 0
+                      // point.x
+                      // point.y
+                      //params[6] = 100
+                      //params[7] = 100
+                      //params[8] = 255
+                      //params[9] = 0
+                      //猜测的意义是：params[0]代表的是图片的编号，1，pictureId
+                      ////params[1] 是图像的文件名了Actor1_8，name
+                      //params[2]，原型函数里是origin，这里给的是0，但看了界面没猜出来是啥意思，我改改再试试
+                      //[1, "Actor1_8", 1, 0, 0, 100, 100, 255, 0],我试了一下，如果是中心的话，这里就是1
+                      //看来这应该是个坐标系的东西，可以再试试，这东西好说
+                      //x,y就不说了
+                      //scaleX, scaleY, opacity, blendMode
+                      //params[6] 对应的就是x的缩放率
+                      //params[7] 对应的就是y的缩放率
+                      //params[8] 透明度，直接就是255，不透明
+                      //params[9] 混合模式，为0
+               //     $gameScreen.showPicture(
+               //         params[0], params[1], params[2], point.x, point.y,
+               //         params[6], params[7], params[8], params[9]
+               //     );
+               //     return true;
+               // };
+               // prettier-ignore
+               // Game_Screen.prototype.showPicture = function(
+               //     pictureId, name, origin, x, y, scaleX, scaleY, opacity, blendMode
+               // ) {
+               //     const realPictureId = this.realPictureId(pictureId);
+               //     const picture = new Game_Picture();
+               //     picture.show(name, origin, x, y, scaleX, scaleY, opacity, blendMode);
+               //     this._pictures[realPictureId] = picture;
+               // };
+   
+               // Game_Screen.prototype.picture = function(pictureId) {
+               //     const realPictureId = this.realPictureId(pictureId);
+               //     return this._pictures[realPictureId];
+               // };
+               //如果是在战斗场景，就返回一经过了加工的id
+               // Game_Screen.prototype.realPictureId = function(pictureId) {
+               //     if ($gameParty.inBattle()) {
+               //         return pictureId + this.maxPictures();
+               //     } else {
+               //         return pictureId;
+               //     }
+               // };
+   
+               // Erase Picture
+               // // 擦除图片
+               // Game_Interpreter.prototype.command235 = function(params) {
+               //     console.log("擦除图片入参：",params[0]);  //就是id
+               //     $gameScreen.erasePicture(params[0]);
+               //     return true;
+               // };
+   
+               //本插件其实就是给地图增加一个立绘显示效果
+               //这样调用，直接报错了，看来这个pictureId是有问题的
+               //等于是给$gameScreen的_pictures[72]私有对象上，绑定了一个文件名为：Actor1_8
+               //的图像，然后坐标系为0，左上角
+               //x坐标为496,y坐标为112
+               //x缩放为50%，y缩放为50%
+               //不透明度为255
+               //混合模式为0
+               var actorMainPicX = 496;
+               var actorMainPicY = 112;
+               var actorMainScaleX = 50;
+               var actorMainScaleY = 50;
+               var hp = $gameActors.actor(1)._hp;
+   
+               //等于说这就是底图
+               $gameScreen.showPicture(72, "Actor1_8", 0, 
+                                       actorMainPicX, actorMainPicY, 
+                                       actorMainScaleX, actorMainScaleY, 
+                                       255, 0);
+               if(hp&lt;534){
+                       //这是第一层，战损效果                        
+                       $gameScreen.showPicture(73, "Actor1_8_dirty", 0, 
+                                               actorMainPicX, actorMainPicY, 
+                                               actorMainScaleX, actorMainScaleY, 
+                                               255, 0);
+               }
+               //这是第一层，战损效果 
+               if(hp&gt;534){
+                   //擦除战损层图片就好了                       
+                   $gameScreen.erasePicture(73);
+               }
+               //console.log(name,       origin, x, y,         scaleX, scaleY, opacity, blendMode);
+               //            Actor1_8    0       0  0  0       100 100         255
+               //console.log($gameScreen);
+   
+               //玩家的状态是：$gameActors.actor(1)_hp就能拿到了；
+   
+       });
+   
+   })();</code></pre><p><br></p><p>先贴代码</p><p>然后说一下效果：</p><p><img src="/static/uploads/image_zoiffwrhnyvoxrtsannv.png" alt="" data-href="" style=""/></p><p>RMMZ里玩家的数据很好获取</p><p>$gameActors.actor(1)，就这个就是第一个玩家的对象了</p><p>然后console里面看对象状态就好了</p><p>1、数据库--&gt;类型---&gt;装备类型</p><p><img src="/static/uploads/image_bggkmtynzxzpeutqoxxd.png" alt="" data-href="" style=""/></p><p>我增加了一个特殊</p><p>2、然后在数据库--&gt;防具里，增加了一个门禁卡</p><p><img src="/static/uploads/image_iuhpuzmvqyimgjaldvlq.png" alt="" data-href="" style=""/></p><p>3、然后事件编辑器里</p><p><img src="/static/uploads/image_ixqgcuxqodkymhreokiw.png" alt="" data-href="" style=""/></p><p>这就可以增加物品了；</p><p>4、然后装备栏里就可以装备新的门禁卡了</p><p><img src="/static/uploads/image_fwtrwtldznqjngxaikga.png" alt="" data-href="" style=""/></p><p>5、门禁卡就可以作为某种开关了</p><p><img src="/static/uploads/image_wjvsvigvwekrduyjufpl.png" alt="" data-href="" style=""/></p><p>id为101就是门禁卡了</p><p><img src="/static/uploads/image_ihnlozretquorpqtnhzv.png" alt="" data-href="" style=""/></p><p>接着插件里就可以根据各种装备的状态来显示立绘图片了</p><p>这就是需要和美工商量好的事情了</p><p><img src="/static/uploads/image_rlauwtasyetdkjwpltsk.png" alt="" data-href="" style=""/></p><p>这里是战损的效果</p><p>只是示意图，我毕竟不是美工，这之后要探索AI怎么实现这部分的</p><p>实际上我就是打开了人物立绘的图片，用GIMP</p><p><img src="/static/uploads/image_pgwerzouevneubyojtem.png" alt="" data-href="" style=""/></p><p>然后在人物立绘基础上做了画了几笔，做了一个透明的PNG图像并重命名</p><p><img src="/static/uploads/image_kzrvagnmjaevvuqvxqcq.png" alt="" data-href="" style=""/></p><p>接着就是核心的图片叠加</p><p>它的这个绘制就是按层叠加上去就完事儿了</p><p>5、优化点：</p><p>我估计可以给这些层再加上判断语句，如果已经绘制过的，那么那个pictureId的数组里面是有值的，那就不重复绘制，这里肯定能优化</p><p>根据装备来显示对应图片</p><p>根据装填来显示对应图片</p><p>就这么点小技巧</p><p><img src="/static/uploads/image_suclynzghdjbtivvdhbl.png" alt="" data-href="" style=""/></p><p>另外当前走的是事件并行处理</p><p>这个其实有问题</p><p>如果初始不是这张地图这立绘还不触发了不成？</p><p>所以需要看看怎么搞，另外这个立绘系统还需要整个开关</p><p>基础原理现在没问题了</p><p>其实很简单的一个东西，甚至加上眨眼，以及左顾右盼都是美工和一些状态值判断的小事儿</p><p>日本人写的那些插件搞得真是无比之复杂</p><p><br></p><p>7、未来的一些工作</p><p>战斗立绘和菜单立绘看怎么解决</p><p><br></p>
