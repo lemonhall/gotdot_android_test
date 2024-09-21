@@ -22,32 +22,28 @@ size = Vector2i(200, 100)
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 0
-offset_left = 303.0
-offset_top = 360.0
-offset_right = 662.0
-offset_bottom = 456.0
+offset_left = 18.0
+offset_top = 354.0
+offset_right = 377.0
+offset_bottom = 450.0
 theme_override_font_sizes/font_size = 64
 text = "点击我"
 script = ExtResource("1_x3dbt")
 
 [node name="ItemList" type="ItemList" parent="."]
 layout_mode = 0
-offset_left = 800.0
-offset_top = 52.0
-offset_right = 1069.0
-offset_bottom = 498.0
-theme_override_font_sizes/font_size = 64
-item_count = 3
-item_0/text = "level1"
-item_1/text = "level2"
-item_2/text = "level3"
+offset_left = 414.0
+offset_top = 41.0
+offset_right = 1724.0
+offset_bottom = 569.0
+theme_override_font_sizes/font_size = 32
 
 [node name="Label" type="Label" parent="."]
 layout_mode = 0
-offset_left = 360.0
-offset_top = 123.0
-offset_right = 517.0
-offset_bottom = 258.0
+offset_left = 57.0
+offset_top = 125.0
+offset_right = 188.0
+offset_bottom = 260.0
 theme_override_font_sizes/font_size = 99
 text = "0"
 
@@ -56,8 +52,17 @@ autostart = true
 
 [node name="MQTT" parent="." instance=ExtResource("3_6am8h")]
 
+[node name="CodeEdit" type="CodeEdit" parent="."]
+layout_mode = 0
+offset_left = 16.0
+offset_top = 655.0
+offset_right = 1721.0
+offset_bottom = 1150.0
+placeholder_text = "内容"
+
 [connection signal="ready" from="." to="." method="_on_ready"]
 [connection signal="pressed" from="Button" to="Button" method="_on_pressed"]
+[connection signal="item_selected" from="ItemList" to="." method="_on_item_list_item_selected"]
 [connection signal="timeout" from="Timer" to="Button" method="_on_timer_timeout"]
 [connection signal="broker_connected" from="MQTT" to="Button" method="_on_mqtt_broker_connected"]
 [connection signal="broker_connection_failed" from="MQTT" to="Button" method="_on_mqtt_broker_connection_failed"]
