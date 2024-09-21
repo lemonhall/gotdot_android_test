@@ -1,0 +1,20 @@
+[gd_scene load_steps=2 format=3 uid="uid://d1c6xo7xglreg"]
+
+[ext_resource type="Script" path="res://control_2.gd" id="1_jaml4"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_jaml4")
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 0
+offset_right = 1155.0
+offset_bottom = 640.0
+columns = 7
+
+[connection signal="ready" from="." to="." method="_on_ready"]
