@@ -1,0 +1,134 @@
+[gd_scene format=3 uid="uid://606lqgfbomft"]
+
+[node name="Node2D" type="Node2D"]
+
+[node name="Window" type="Window" parent="."]
+title = "创建"
+initial_position = 1
+size = Vector2i(610, 445)
+unresizable = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Window"]
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Window/VBoxContainer"]
+custom_minimum_size = Vector2(0, 350)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Window/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Window/VBoxContainer/HBoxContainer/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="Label" type="Label" parent="Window/VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "收藏："
+
+[node name="ItemList" type="ItemList" parent="Window/VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+max_text_lines = 8
+auto_height = true
+item_count = 4
+same_column_width = true
+fixed_column_width = 100
+item_0/text = "1"
+item_1/text = "2"
+item_2/text = "3"
+
+[node name="Label2" type="Label" parent="Window/VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "常用："
+
+[node name="ItemList2" type="ItemList" parent="Window/VBoxContainer/HBoxContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+max_text_lines = 8
+auto_height = true
+item_count = 3
+same_column_width = true
+fixed_column_width = 150
+item_0/text = "1"
+item_1/text = "2"
+item_2/text = "3"
+
+[node name="MarginContainer2" type="MarginContainer" parent="Window/VBoxContainer/HBoxContainer"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Window/VBoxContainer/HBoxContainer/MarginContainer2"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Window/VBoxContainer/HBoxContainer/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+text = "搜索："
+
+[node name="TextEdit" type="TextEdit" parent="Window/VBoxContainer/HBoxContainer/MarginContainer2/VBoxContainer"]
+custom_minimum_size = Vector2(0, 36)
+layout_mode = 2
+text = "测试"
+
+[node name="Label2" type="Label" parent="Window/VBoxContainer/HBoxContainer/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+text = "匹配项："
+
+[node name="Tree" type="Tree" parent="Window/VBoxContainer/HBoxContainer/MarginContainer2/VBoxContainer"]
+custom_minimum_size = Vector2(0, 200)
+layout_mode = 2
+
+[node name="Label3" type="Label" parent="Window/VBoxContainer/HBoxContainer/MarginContainer2/VBoxContainer"]
+layout_mode = 2
+text = "描述:"
+
+[node name="TextEdit2" type="TextEdit" parent="Window/VBoxContainer/HBoxContainer/MarginContainer2/VBoxContainer"]
+custom_minimum_size = Vector2(0, 64)
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Window/VBoxContainer"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Window/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 1
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 1
+
+[node name="GridContainer" type="GridContainer" parent="Window/VBoxContainer/HBoxContainer2/MarginContainer"]
+custom_minimum_size = Vector2(600, 0)
+layout_mode = 2
+columns = 2
+
+[node name="Button" type="Button" parent="Window/VBoxContainer/HBoxContainer2/MarginContainer/GridContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 0
+text = "确定"
+
+[node name="Button2" type="Button" parent="Window/VBoxContainer/HBoxContainer2/MarginContainer/GridContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 0
+text = "取消"

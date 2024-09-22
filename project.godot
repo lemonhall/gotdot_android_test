@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="android_test"
-run/main_scene="res://中文场景名测试.tscn"
+run/main_scene="res://测试一下Tab.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
 

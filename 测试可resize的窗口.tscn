@@ -1,0 +1,64 @@
+[gd_scene format=3 uid="uid://dy3s0iu7skdva"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -7.0
+offset_top = -5.0
+offset_right = -7.0
+offset_bottom = 145.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Window" type="Window" parent="."]
+title = "创建"
+position = Vector2i(276, 36)
+size = Vector2i(600, 500)
+force_native = true
+
+[node name="MarginContainer" type="MarginContainer" parent="Window"]
+offset_right = 204.0
+offset_bottom = 128.0
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Window/MarginContainer"]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Window/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Window/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "收藏："
+
+[node name="ItemList" type="ItemList" parent="Window/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+max_text_lines = 8
+auto_height = true
+icon_mode = 0
+fixed_icon_size = Vector2i(16, 16)
+
+[node name="Label2" type="Label" parent="Window/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+text = "最近使用"
+
+[node name="ItemList2" type="ItemList" parent="Window/MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+auto_height = true
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="Window/MarginContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Window/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "搜索："
+
+[node name="TextEdit" type="TextEdit" parent="Window/MarginContainer/HBoxContainer/VBoxContainer2"]
+layout_mode = 2
+text = "啊"
+placeholder_text = "搜索条件"
